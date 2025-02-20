@@ -295,13 +295,13 @@ function realeigsolve(A, x₀, howmany::Int, which::Selector, alg::Arnoldi; alg_
     i = 0
     while i < length(fact)
         i += 1
-        if i < length(fact) && T[i + 1, i] != 0
+        if i < length(fact) && sqrt(abs(T[i + 1, i] * T[i + 1, i])) > alg.tol
             i -= 1
             break
         end
     end
     i < howmany &&
-        throw(ArgumentError("only the first $i eigenvalues are real, which is less then the requested `howmany = $howmany`"))
+        @warn "Only the first $i eigenvalues are real, which is less then the requested `howmany = $howmany`"
     howmany′ = max(howmany, min(i, converged))
     TT = view(T, 1:howmany′, 1:howmany′)
     values = diag(TT)
@@ -386,7 +386,7 @@ function _schursolve(A, x₀, howmany::Int, which::Selector, alg::Arnoldi)
             end
             if eltype(T) <: Real &&
                0 < converged < length(fact) &&
-               T[converged + 1, converged] != 0
+               sqrt(abs(T[converged + 1, converged] * T[converged + 1, converged])) > tol
                 converged -= 1
             end
 
